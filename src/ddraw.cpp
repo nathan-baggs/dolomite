@@ -1,8 +1,5 @@
-#include <chrono>
 #include <sstream>
 #include <string>
-#include <system_error>
-#include <thread>
 #include <unordered_map>
 #include <vector>
 
@@ -258,16 +255,6 @@ Lock_hook(void *that, ::LPRECT lpDestRect, ::DDSURFACEDESC2 *lpDDSurface, ::DWOR
     lpDDSurface->lpSurface = (void *)g_new_surface.data();
     ensure(g_surface_memory != nullptr, "Lock_hook returned a null surface pointer");
 
-    // lpDDSurface->lPitch = 0x500;
-    // lpDDSurface->ddpfPixelFormat.dwSize = 0x20;
-    // lpDDSurface->ddpfPixelFormat.dwFlags = DDPF_RGB;
-    // lpDDSurface->ddpfPixelFormat.dwFourCC = 0x00000000l;
-    // lpDDSurface->ddpfPixelFormat.dwRGBBitCount = 16;
-    // lpDDSurface->ddpfPixelFormat.dwRBitMask = 63488;
-    // lpDDSurface->ddpfPixelFormat.dwGBitMask = 2016;
-    // lpDDSurface->ddpfPixelFormat.dwBBitMask = 31;
-    // lpDDSurface->ddpfPixelFormat.dwRGBAlphaBitMask = 0;
-
     log("Surface description: {}", to_string(lpDDSurface));
 
     if (result != DD_OK)
@@ -295,11 +282,6 @@ HRESULT WINAPI Unlock_hook(void *that, ::LPRECT lpDestRect)
     const auto *old_surface_ptr = reinterpret_cast<const std::uint16_t *>(g_new_surface.data());
     auto *new_surface_ptr = reinterpret_cast<std::uint32_t *>(g_surface_memory);
 
-    // for (auto i = 0u; i < g_new_surface.size(); ++i)
-    // {
-    //     new_surface_ptr[i] = old_surface_ptr[i];
-    // }
-
     std::memset(new_surface_ptr, 0xff, g_new_surface.size());
     auto j = 0;
 
@@ -321,30 +303,6 @@ HRESULT WINAPI Unlock_hook(void *that, ::LPRECT lpDestRect)
             new_surface_ptr[j++] = (r << 16) | (g << 8) | b;
         }
     }
-
-    // for (auto i = 0; i < 430 * 640; i += 2)
-    // {
-    //     const auto pixel_16 = old_surface_ptr[i];
-    //
-    //     std::uint8_t r = (pixel_16 & 0xF800) >> 11;
-    //     std::uint8_t g = (pixel_16 & 0x07E0) >> 5;
-    //     std::uint8_t b = (pixel_16 & 0x001F);
-    //
-    //     r = (r << 3) | (r >> 2);
-    //     g = (g << 2) | (g >> 4);
-    //     b = (b << 3) | (b >> 2);
-    //
-    //     new_surface_ptr[i] = (r << 16) | (g << 8) | b;
-    //     //  new_surface_ptr[j] = pixel_16;
-    //     //  j += 2;
-    //     //
-    //     //      if (i != 0 && i % 640 == 0)
-    //     //      {
-    //     //          j += 1;
-    //     //      }
-    // }
-    //
-    // std::memcpy(g_surface_memory, g_new_surface.data(), g_new_surface.size());
 
     ensure(g_surface_funcs.contains("Unlock"), "Unlock_hook called, but Unlock function is not registered");
     const auto orig_func = g_surface_funcs["Unlock"];
@@ -494,15 +452,6 @@ HRESULT WINAPI GetPixelFormat_hook(void *that, ::DDPIXELFORMAT *lpDDPixelFormat)
     log("Pixel format: {}", to_string(lpDDPixelFormat));
     const auto result = reinterpret_cast<decltype(&GetPixelFormat_hook)>(orig_func)(that, lpDDPixelFormat);
     log("Pixel format: {}", to_string(lpDDPixelFormat));
-
-    // lpDDPixelFormat->dwSize = 0x20;
-    // lpDDPixelFormat->dwFlags = DDPF_RGB;
-    // lpDDPixelFormat->dwFourCC = 0x00000000l;
-    // lpDDPixelFormat->dwRGBBitCount = 16;
-    // lpDDPixelFormat->dwRBitMask = 63488;
-    // lpDDPixelFormat->dwGBitMask = 2016;
-    // lpDDPixelFormat->dwBBitMask = 31;
-    // lpDDPixelFormat->dwRGBAlphaBitMask = 0;
 
     if (result != DD_OK)
     {
