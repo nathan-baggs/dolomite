@@ -21,6 +21,7 @@ inline auto get_temp(std::string_view filename) -> std::filesystem::path
 template <class... T>
 auto log(std::format_string<T...> fmt, T &&...args) -> void
 {
+#if defined(DDRAW_DEBUG)
     static auto mtx = std::mutex{};
 
     std::scoped_lock lock{mtx};
@@ -32,6 +33,7 @@ auto log(std::format_string<T...> fmt, T &&...args) -> void
         const auto str = std::format(fmt, std::forward<T>(args)...);
         file << str << std::endl;
     }
+#endif
 }
 
 template <class... T>

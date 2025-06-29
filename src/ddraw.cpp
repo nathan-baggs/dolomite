@@ -633,4 +633,54 @@ __declspec(dllexport) HRESULT WINAPI DirectDrawEnumerateA(void *lpCallback, LPVO
 
     return result;
 }
+
+DWORD WINAPI DllMain(void *hinstDLL, DWORD fdwReason, void *lpvReserved)
+{
+    switch (fdwReason)
+    {
+        case DLL_PROCESS_ATTACH:
+        {
+            log("DLL_PROCESS_ATTACH");
+            const auto key_path = "SOFTWARE\\WOW6432Node\\Perfect Entertainment\\Discworld Noir";
+            const auto key_name = "Start Windowed";
+            const auto key_value = "Yes";
+
+            HKEY hKey;
+            if (RegCreateKeyExA(
+                    HKEY_LOCAL_MACHINE,
+                    key_path,
+                    0,
+                    NULL,
+                    REG_OPTION_NON_VOLATILE,
+                    KEY_WRITE | KEY_WOW64_32KEY,
+                    NULL,
+                    &hKey,
+                    NULL) == ERROR_SUCCESS)
+            {
+                if (RegSetValueExA(
+                        hKey,
+                        key_name,
+                        0,
+                        REG_SZ,
+                        reinterpret_cast<const BYTE *>(key_value),
+                        static_cast<DWORD>(std::strlen(key_value) + 1)) != ERROR_SUCCESS)
+                {
+                    log("Failed to set registry value {}\\{} to {}", key_path, key_name, key_value);
+                }
+                RegCloseKey(hKey);
+            }
+            else
+            {
+                log("Failed to create registry key {}", key_path);
+            }
+
+            break;
+        }
+        case DLL_THREAD_ATTACH:
+        case DLL_THREAD_DETACH:
+        case DLL_PROCESS_DETACH: break;
+    }
+
+    return 1; // Indicate successful initialization
+}
 }
