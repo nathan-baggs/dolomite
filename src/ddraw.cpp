@@ -282,10 +282,9 @@ HRESULT WINAPI Unlock_hook(void *that, ::LPRECT lpDestRect)
     const auto *old_surface_ptr = reinterpret_cast<const std::uint16_t *>(g_new_surface.data());
     auto *new_surface_ptr = reinterpret_cast<std::uint32_t *>(g_surface_memory);
 
-    std::memset(new_surface_ptr, 0xff, g_new_surface.size());
     auto j = 0;
 
-    for (auto y = 0; y < 430 * 2; y += 2)
+    for (auto y = 0; y <= 431 * 2; y += 2)
     {
         for (auto x = 0; x < 640; ++x)
         {

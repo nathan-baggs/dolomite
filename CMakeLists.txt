@@ -4,7 +4,7 @@ SET(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 project(
 	dolomite
-	VERSION "1.0.0"
+	VERSION "1.0.1"
 	DESCRIPTION "ddraw shim hacking"
 	LANGUAGES C CXX
 )
